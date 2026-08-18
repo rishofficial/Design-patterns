@@ -3,6 +3,7 @@
  * Reference: Slide 43 in slide.md
  * 
  * Demonstrates the Builder pattern for step-by-step construction of complex Computer objects.
+ * Shows that all builder steps/methods are OPTIONAL and can be omitted without causing errors.
  */
 
 // Complex Product Class
@@ -27,11 +28,11 @@ class Computer {
     @Override
     public String toString() {
         return "Computer Specifications:\n" +
-               "  - CPU: " + cpu + "\n" +
-               "  - RAM: " + ram + "\n" +
-               "  - Storage: " + storage + "\n" +
-               "  - GPU: " + gpu + "\n" +
-               "  - OS: " + os + "\n" +
+               "  - CPU: " + (cpu != null ? cpu : "[None/Default]") + "\n" +
+               "  - RAM: " + (ram != null ? ram : "[Omitted - No RAM installed]") + "\n" +
+               "  - Storage: " + (storage != null ? storage : "[None/Default]") + "\n" +
+               "  - GPU: " + (gpu != null ? gpu : "[Omitted - Integrated/None]") + "\n" +
+               "  - OS: " + (os != null ? os : "[None/Default]") + "\n" +
                "  - Bluetooth: " + (isBluetoothEnabled ? "Yes" : "No") + "\n" +
                "  - Wi-Fi: " + (isWifiEnabled ? "Yes" : "No");
     }
@@ -48,13 +49,9 @@ interface ComputerBuilder {
     Computer getComputer();
 }
 
-// Concrete Builder 1: High-End Gaming PC
+// Concrete Builder 1: High-End Gaming PC (Sets all components)
 class GamingComputerBuilder implements ComputerBuilder {
-    private Computer computer;
-
-    public GamingComputerBuilder() {
-        this.computer = new Computer();
-    }
+    private Computer computer = new Computer();
 
     @Override
     public void buildCPU() { computer.setCpu("Intel Core i9-14900K 24-Core"); }
@@ -81,42 +78,77 @@ class GamingComputerBuilder implements ComputerBuilder {
     public Computer getComputer() { return this.computer; }
 }
 
-// Concrete Builder 2: Office Workstation PC
-class OfficeComputerBuilder implements ComputerBuilder {
-    private Computer computer;
+// Concrete Builder 2: Barebones Server Builder (OMITS RAM and GPU building steps!)
+class BarebonesServerBuilder implements ComputerBuilder {
+    private Computer computer = new Computer();
 
-    public OfficeComputerBuilder() {
-        this.computer = new Computer();
+    @Override
+    public void buildCPU() { computer.setCpu("AMD EPYC 7763 64-Core Server Processor"); }
+
+    @Override
+    public void buildRAM() {
+        // Intentionally OMITTED! Client will insert RAM modules separately.
+        System.out.println("  [Builder Note]: buildRAM step omitted. Server built without pre-installed RAM.");
     }
 
     @Override
-    public void buildCPU() { computer.setCpu("Intel Core i5-13400 10-Core"); }
+    public void buildStorage() { computer.setStorage("4TB Enterprise NVMe U.2 SSD"); }
 
     @Override
-    public void buildRAM() { computer.setRam("16GB DDR4 3200MHz"); }
+    public void buildGPU() {
+        // Intentionally OMITTED! Servers run headless.
+    }
 
     @Override
-    public void buildStorage() { computer.setStorage("512GB M.2 NVMe SSD"); }
-
-    @Override
-    public void buildGPU() { computer.setGpu("Integrated Intel UHD Graphics 730"); }
-
-    @Override
-    public void buildOS() { computer.setOs("Windows 11 Home"); }
+    public void buildOS() { computer.setOs("Ubuntu Server 24.04 LTS"); }
 
     @Override
     public void buildConnectivity() {
+        computer.setWifiEnabled(false);
         computer.setBluetoothEnabled(false);
-        computer.setWifiEnabled(true);
     }
 
     @Override
     public Computer getComputer() { return this.computer; }
 }
 
+// Modern Method-Chaining Fluent Builder (Direct Client-controlled Optional Steps)
+class FluentComputerBuilder {
+    private Computer computer = new Computer();
+
+    public FluentComputerBuilder setCpu(String cpu) {
+        computer.setCpu(cpu);
+        return this;
+    }
+
+    public FluentComputerBuilder setRam(String ram) {
+        computer.setRam(ram);
+        return this;
+    }
+
+    public FluentComputerBuilder setStorage(String storage) {
+        computer.setStorage(storage);
+        return this;
+    }
+
+    public FluentComputerBuilder setGpu(String gpu) {
+        computer.setGpu(gpu);
+        return this;
+    }
+
+    public FluentComputerBuilder setOs(String os) {
+        computer.setOs(os);
+        return this;
+    }
+
+    public Computer build() {
+        return this.computer;
+    }
+}
+
 // Director Class
 class ComputerDirector {
-    public void constructComputer(ComputerBuilder builder) {
+    public void constructFullComputer(ComputerBuilder builder) {
         builder.buildCPU();
         builder.buildRAM();
         builder.buildStorage();
@@ -134,18 +166,26 @@ public class BuilderPatternDemo {
 
         System.out.println("=== Computer Assembly Builder Pattern Demo ===");
 
-        // Build a High-End Gaming PC
-        System.out.println("\n[Assembling Gaming Workstation]");
+        // 1. Full Build (Gaming PC)
+        System.out.println("\n[1. Full Assembly: Gaming Workstation]");
         ComputerBuilder gamingBuilder = new GamingComputerBuilder();
-        director.constructComputer(gamingBuilder);
-        Computer gamingPC = gamingBuilder.getComputer();
-        System.out.println(gamingPC);
+        director.constructFullComputer(gamingBuilder);
+        System.out.println(gamingBuilder.getComputer());
 
-        // Build an Office PC
-        System.out.println("\n[Assembling Office Desktop]");
-        ComputerBuilder officeBuilder = new OfficeComputerBuilder();
-        director.constructComputer(officeBuilder);
-        Computer officePC = officeBuilder.getComputer();
-        System.out.println(officePC);
+        // 2. Omitted Steps Build (Barebones Server omitting RAM & GPU)
+        System.out.println("\n[2. Partial Assembly: Barebones Server (RAM & GPU Omitted)]");
+        ComputerBuilder serverBuilder = new BarebonesServerBuilder();
+        director.constructFullComputer(serverBuilder);
+        System.out.println(serverBuilder.getComputer());
+
+        // 3. Modern Fluent Builder with Selective Optional Methods
+        System.out.println("\n[3. Fluent Builder Assembly: Custom PC without buildRAM step]");
+        Computer customPC = new FluentComputerBuilder()
+                .setCpu("Apple M3 Max")
+                .setStorage("1TB Unified Storage")
+                .setOs("macOS Sequoia")
+                // Notice: setRam() and setGpu() are completely OMITTED here!
+                .build();
+        System.out.println(customPC);
     }
 }

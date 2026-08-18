@@ -3,7 +3,16 @@
 ## Overview & Intent
 The **Builder Pattern** separates the construction of a complex object from its representation so that the same construction process can create different representations.
 
-- **Source Reference**: Slide 43 of [slide.md](file:///home/rish/Desktop/2-2/Software%20engineering/sessionals/creational/slide.md)
+- **Source Reference**: Slides 43–47 of [slide.md](file:///home/rish/Desktop/2-2/Software%20engineering/sessionals/creational/slide.md)
+
+---
+
+## Key Feature: Optional Building Steps
+A primary advantage of the Builder pattern is that **all construction steps are optional**.
+
+- Calling or omitting steps like `buildRAM()` or `.setRam()` **does not cause any error**.
+- Unset fields safely retain default fallback values (e.g. `null`, default values, or `false`).
+- Prevents **Telescoping Constructor anti-patterns** (`new Computer(cpu, ram, storage, null, null, false, true)`).
 
 ---
 
@@ -29,35 +38,59 @@ The **Builder Pattern** separates the construction of a complex object from its 
              +------------------+------------------+
              |                                     |
 +------------+------------+           +------------+------------+
-|  GamingComputerBuilder  |           |   OfficeComputerBuilder |
+|  GamingComputerBuilder  |           |        CarBuilder         |
 +-------------------------+           +-------------------------+
-| +buildPartA()           |           | +buildPartA()           |
-| +buildPartB()           |           | +buildPartB()           |
-| +getResult(): Computer  |           | +getResult(): Computer  |
+| +buildPartA()           |           | +BuildBody()            |
+| +buildPartB()           |           | +InsertWheels()         |
+| +getResult(): Computer  |           | +GetVehicle(): Product  |
 +------------+------------+           +------------+------------+
-             |                                     |
-             +------------------+------------------+
-                                | «creates»
-                                v
-                      +-------------------+
-                      |     Computer      | (Complex Product)
-                      +-------------------+
 ```
 
 ---
 
-## Case Study & Implementation
+## Case Studies & Implementations
 
-This folder contains a complete, executable Java implementation for the Builder pattern:
+This folder contains three complete, executable Java implementations for all Builder pattern cases in the slides:
 
 ### 1. Complex Computer Assembly Builder ([BuilderPatternDemo.java](file:///home/rish/Desktop/2-2/Software%20engineering/sessionals/creational/Builder/BuilderPatternDemo.java))
 - **Source**: Slide 43
-- **Description**: Demonstrates building complex objects (`Computer`) with optional/varied hardware configurations (`GamingComputerBuilder` vs `OfficeComputerBuilder`) orchestrated by a `ComputerDirector`.
+- **Description**: Demonstrates full builds, partial builds (omitting `RAM` & `GPU`), and Modern Fluent Builder method chaining.
 - **Run Command**:
   ```bash
   javac creational/Builder/BuilderPatternDemo.java
   java -cp creational/Builder BuilderPatternDemo
   ```
+
+### 2. Vehicle Assembly Builder ([VehicleBuilderDemo.java](file:///home/rish/Desktop/2-2/Software%20engineering/sessionals/creational/Builder/VehicleBuilderDemo.java))
+- **Source**: Slide 44
+- **Description**: Assembles different vehicle representations (`Car` vs `MotorCycle`) using `IBuilder` and `VehicleDirector`.
+- **Run Command**:
+  ```bash
+  javac creational/Builder/VehicleBuilderDemo.java
+  java -cp creational/Builder VehicleBuilderDemo
+  ```
+
+### 3. CD Media Pack Builder ([CDBuilderDemo.java](file:///home/rish/Desktop/2-2/Software%20engineering/sessionals/creational/Builder/CDBuilderDemo.java))
+- **Source**: Slide 47
+- **Description**: Assembles `Sony` and `Samsung` CD media packs using `CDBuilder`, `CDType`, and abstract `Company`/`CD` interfaces.
+- **Run Command**:
+  ```bash
+  javac creational/Builder/CDBuilderDemo.java
+  java -cp creational/Builder CDBuilderDemo
+  ```
+
+---
+
+## Comparison: Abstract Factory vs Builder
+
+| Aspect | Abstract Factory | Builder |
+| :--- | :--- | :--- |
+| **Primary Purpose** | Create families of related objects | Construct a complex object step by step |
+| **Focus** | *Which* objects to create | *How* to create an object |
+| **Complexity** | Simple or moderately complex | Complex with many optional parts |
+| **Construction Process** | Hidden from client | Exposed as a sequence of building steps |
+| **Product Type** | Multiple related products | Usually one complex product |
+| **Client Involvement** | Selects a factory family | Controls building sequence (directly or via Director) |
 
 ---
 
@@ -65,6 +98,6 @@ This folder contains a complete, executable Java implementation for the Builder 
 
 | Pros | Cons |
 | :--- | :--- |
-| **Step-by-step Construction**: Allows constructing objects incrementally. | **Increased Code Volume**: Requires creating dedicated Builder classes for products. |
-| **Separation of Assembly Logic**: `Director` handles construction steps; Product encapsulates data. | |
-| **Supports Immutable Objects**: Fields can be set during construction before returning final instance. | |
+| **Optional Steps**: Call only the construction steps needed; omit unused parts effortlessly. | **Increased Code Volume**: Requires creating dedicated Builder classes for products. |
+| **Prevents Telescoping Constructors**: Avoids giant constructors full of `null` arguments. | |
+| **Supports Immutable Objects**: Fields set step-by-step before finalizing product. | |

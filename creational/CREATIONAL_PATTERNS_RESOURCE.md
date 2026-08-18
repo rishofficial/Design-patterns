@@ -26,7 +26,8 @@ This document serves as a complete reference guide and resource for the course m
 5. [Builder Pattern (`Builder/` folder)](#5-builder-pattern-builder-folder)
    - [Intent & Problem Statement](#builder-intent--problem-statement)
    - [UML Class Structure](#builder-uml-class-structure)
-   - [Case Implementation](#builder-case-implementation)
+   - [Case Implementations](#builder-case-implementations)
+   - [Abstract Factory vs. Builder Comparison](#abstract-factory-vs-builder-comparison)
    - [Pros & Cons](#builder-pros--cons)
 
 ---
@@ -196,21 +197,38 @@ All code cases are fully implemented as standalone executable Java files in [cre
 ## 5. Builder Pattern (`Builder/` folder)
 
 ### Builder Intent & Problem Statement
-- **Intent**: Separate the construction of a complex object from its representation so that the same construction process can create different representations.
+- **Intent**: Separate the construction of a complex object from its representation so that the same construction process can create different representations. Parse a complex representation, create one of several targets.
 - **Problem**: Construction of complex objects with many optional parameters leads to anti-patterns like telescoping constructors (`Product(a, b, c, d, e, f, ...)`).
 
 ### Builder UML Class Structure
-- `Builder` (Interface): Specifies steps to build components of a complex object.
+- `Builder` / `IBuilder` (Interface): Specifies steps to build components of a complex object.
 - `ConcreteBuilder`: Implements assembly steps and provides a method to retrieve the completed product.
 - `Director`: Coordinates assembly order using a `Builder` instance.
 - `Product`: The complex object being built.
 
-### Builder Case Implementation
+### Builder Case Implementations
 
 Implemented in [creational/Builder/](file:///home/rish/Desktop/2-2/Software%20engineering/sessionals/creational/Builder/):
 
 1. **Complex Computer Assembly Builder** ([BuilderPatternDemo.java](file:///home/rish/Desktop/2-2/Software%20engineering/sessionals/creational/Builder/BuilderPatternDemo.java))
-   - *Slide 43*: Complete Builder pattern with `ComputerBuilder` interface, `GamingComputerBuilder`, `OfficeComputerBuilder`, `ComputerDirector`, and `BuilderPatternDemo` client driver.
+   - *Slide 43*: Demonstrates step construction, omitting optional steps (`RAM` & `GPU`), and Modern Fluent Builder chaining.
+
+2. **Vehicle Assembly Builder** ([VehicleBuilderDemo.java](file:///home/rish/Desktop/2-2/Software%20engineering/sessionals/creational/Builder/VehicleBuilderDemo.java))
+   - *Slide 44*: Demonstrates building `Car` and `MotorCycle` representations using `IBuilder` and `VehicleDirector`.
+
+3. **CD Media Pack Builder** ([CDBuilderDemo.java](file:///home/rish/Desktop/2-2/Software%20engineering/sessionals/creational/Builder/CDBuilderDemo.java))
+   - *Slide 47*: Demonstrates assembling `Sony` and `Samsung` CD media packs using `CDBuilder`, `CDType`, and `Packing` interfaces.
+
+### Abstract Factory vs. Builder Comparison
+
+| Aspect | Abstract Factory | Builder |
+| :--- | :--- | :--- |
+| **Primary Purpose** | Create families of related objects | Construct a complex object step by step |
+| **Focus** | *Which* objects to create | *How* to create an object |
+| **Complexity** | Simple or moderately complex | Complex with many optional parts |
+| **Construction Process** | Hidden from client | Exposed as a sequence of building steps |
+| **Product Type** | Multiple related products | Usually one complex product |
+| **Client Involvement** | Selects a factory family | Controls building sequence (directly or via Director) |
 
 ### Builder Pros & Cons
 - **Pros**:
