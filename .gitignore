@@ -1,0 +1,15 @@
+# Compiled Java Class Files
+*.class
+*.jar
+*.war
+*.ear
+
+# Build Output Directories
+bin/
+out/
+target/
+build/
+
+# Temporary and OS Files
+.DS_Store
+*.log
